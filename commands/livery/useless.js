@@ -7,7 +7,7 @@ module.exports = {
         .setDescription('Replies with useless bullshit!'),
     async execute(interaction) {
 
-        PythonShell.run('./commands/livery/hello.py', null, function (err) {
+        PythonShell.run('./commands/livery/iracing_script.py', null, function (err) {
             if (err) throw err;
             console.log('finished');
         }).then(async messages => {

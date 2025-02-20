@@ -1,12 +1,13 @@
 const { SlashCommandBuilder } = require('discord.js');
 
+
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('time')
+        .setName('uptime')
         .setDescription('Replies with time since reincarnation'),
     async execute(interaction) {
-        let timeAlive = Date.now()-process.uptime();
-        let response = "Since" + timeAlive.toString() + " xm3 bot has been alive.";
+        let timeAlive = process.uptime();
+        let response = "For" + timeAlive.toString()+ " seconds xm3 bot has been alive.";
         await interaction.reply(response);
     },
 };
