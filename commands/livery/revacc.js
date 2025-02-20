@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { PythonShell } = require('python-shell');
+const gf = require('./get_folders.js');
 const fs = require('fs'); // For handling file operations
 
 module.exports = {
@@ -9,7 +10,8 @@ module.exports = {
         .addStringOption(option =>
             option.setName('car')
                 .setDescription('Car to search for')
-                .setRequired(true))
+                .setRequired(true)
+                .setAutocomplete(true))
         .addStringOption(option =>
             option.setName('finish')
                 .setDescription('Finish of the base colour')
@@ -23,6 +25,30 @@ module.exports = {
                     { name: 'Chrome', value: '5' },
                     { name: 'Clear Chrome', value: '6' },
                 )),
+
+    async autocomplete(interaction) {
+        const focusedValue = interaction.options.getFocused();
+
+        try {
+            const acc_cars = await gf.getFolders('./commands/livery/acc'); // Await the Promise
+            console.log("Available ACC cars:", acc_cars);
+            console.log("Focused value:", focusedValue);
+
+            if (!acc_cars || acc_cars.length === 0) {
+                return await interaction.respond([]); // Return an empty array if no folders are found
+            }
+
+            const choices = acc_cars.sort();
+            const filtered = choices
+                .filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
+                .slice(0, 25);
+
+            await interaction.respond(filtered.map(choice => ({ name: choice, value: choice })));
+        } catch (error) {
+            console.error("Error fetching iRacing cars:", error);
+            await interaction.respond([]); // Return empty if an error occurs
+        }
+    },
 
     async execute(interaction) {
         // Defer the reply to give the bot more time to process the Python script
