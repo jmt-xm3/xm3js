@@ -13,8 +13,9 @@ config.json
 /material_theme_project_new.xml
 /jsLibraryMappings.xml
 .idea
-commands/livery/temp
+commands/livery/temp/*
 inspectionProfiles
 package-lock.json
 xm3js.iml
 material_theme_project_new.xml
+!commands/livery/temp/.gitkeep

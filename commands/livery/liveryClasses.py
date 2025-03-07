@@ -21,7 +21,7 @@ materials = [{'key': 'Glossy', 'value': 0}, {'key': 'Matte', 'value': 1}, {'key'
     'key': 'Satin Metallic', 'value': 3}, {'key': 'Metallic', 'value': 4}, {'key': 'Chrome', 'value': 5},
              {'key': 'Clear Chrome', 'value': 6}]
 
-currentDirectory = os.getcwd()
+currentDirectory = os.getcwd() + '\commands\livery'
 car_models = [
     {"id": 13, "name": "Reiter Engineering R-EX GT3"},
     {"id": 34, "name": "Porsche 992 GT3 R"},
@@ -133,10 +133,10 @@ class ACCLivery:
         self.raceNumber = raceNumber
 
     def setDazzleTopColour(self, DazzleTopColour):
-        self.DazzleTopColour = DazzleTopColour
+        self.DazzleTopColour = hexToTuple(DazzleTopColour)
 
     def setDazzleBottomColour(self, DazzleBottomColour):
-        self.DazzleBottomColour = DazzleBottomColour
+        self.DazzleBottomColour = hexToTuple(DazzleBottomColour)
 
     # Setter methods
     def setFolderName(self, folderName):
@@ -176,8 +176,6 @@ class ACCLivery:
     def setRaceNumber(self, raceNumber):
         self.raceNumber = raceNumber
 
-    def setDazzleBottomColour(self, DazzleBottomColour):
-        self.DazzleBottomColour = DazzleBottomColour
 
     def setDazzleMaterial(self, DazzleMaterial):
         self.DazzleMaterial = DazzleMaterial
@@ -266,7 +264,7 @@ class ACCLivery:
         for mat in materials:
             if self.DazzleMaterial == mat['value']:
                 shutil.copy(os.path.join(currentDirectory, 'acc', mat['key'] + '.json'),
-                            os.path.join(carPath, 'sponsors.json'))
+                            os.path.join(carPath, 'dazzle.json'))
                 break
         for mat in materials:
             if self.SponsorMaterial == mat['value']:
@@ -282,7 +280,10 @@ class ACCLivery:
         examplePath = os.path.join(currentDirectory, "acc", "example.json")
         jsonDirectory = os.path.join(currentDirectory, "temp", self.liveryID)
         os.chdir(jsonDirectory)
-        os.mkdir('Cars')
+        try:
+            os.mkdir('Cars')
+        except:
+            pass
         jsonDirectory = os.path.join(
             jsonDirectory, 'Cars', self.liveryID + '.json')
         os.chdir(currentDirectory)
@@ -398,3 +399,7 @@ class iRacingLivery:
         overlay_images(self.path, sponsorPath, self.path)
         return specMap, self.path
 
+
+car = ACCLivery()
+car.setDazzleTopColour('000000')
+car.setDazzleBottomColour('000000')
