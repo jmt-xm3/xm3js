@@ -176,7 +176,6 @@ class ACCLivery:
     def setRaceNumber(self, raceNumber):
         self.raceNumber = raceNumber
 
-
     def setDazzleMaterial(self, DazzleMaterial):
         self.DazzleMaterial = DazzleMaterial
 
@@ -346,13 +345,13 @@ class iRacingLivery:
         self.path = path
 
     def set_base_colour(self, base_colour):
-        self.base_colour = base_colour
+        self.base_colour = hexToTuple(base_colour)
 
     def set_dazzle1(self, dazzle1):
-        self.dazzle1 = dazzle1
+        self.dazzle1 = hexToTuple(dazzle1)
 
     def set_dazzle2(self, dazzle2):
-        self.dazzle2 = dazzle2
+        self.dazzle2 = hexToTuple(dazzle2)
 
     def set_car(self, car):
         self.car = car
@@ -377,11 +376,11 @@ class iRacingLivery:
 
     def create_livery(self):
         from PIL import Image
-        carDir = os.path.join(os.getcwd(), 'iracing', self.car)
+        carDir = os.path.join(os.getcwd(), 'commands', 'livery', 'iracing', self.car)
         dazzlePath = os.path.join(carDir, 'dazzle.png')
         sponsorPath = os.path.join(carDir, 'sponsors.png')
         specMap = os.path.join(carDir, 'spec.mip')
-        dazzleCopyPath = os.path.join(os.getcwd(), 'temp', self.name)
+        dazzleCopyPath = os.path.join(os.getcwd(), 'commands', 'livery', 'temp', self.name)
         base = Image.new('RGB', (2048, 2048), self.base_colour)
         base.save(self.base)
         shutil.copy(dazzlePath, dazzleCopyPath)
