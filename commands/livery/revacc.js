@@ -141,9 +141,10 @@ module.exports = {
             const filePath = test = "./commands/livery/temp" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
             const folderPath = filePath.substring(0, filePath.lastIndexOf("."));
 
-
+            console.log(filePath)
             // Check if the file exists
             if (!fs.existsSync(filePath)) {
+                console.log(filePath)
                 return await interaction.editReply('The livery file could not be found.');
             }
 

@@ -74,23 +74,19 @@ module.exports = {
 
             // Log the results from the Python script
             console.log('Python script output:', data);
-            const data_split = data.split(',')
-            const spec_map_path = data_split[0];
-            const livery_path = data_split[1];
-            const fullFilePath = livery_path.replace(/\\/g, "/");
-            const filePath = test = "./commands/livery/temp" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
-
-
+            const data_split = ((((data.replace("(","").replace(")","")).replaceAll("'","")).replaceAll(" ","")).replace(/\\/g, "/")).split(",")
+            const specPath = data_split[0].replace(/\\/g, "/")
+            const filePath = data_split[1].replace(/\\/g, "/")
+            console.log(filePath,specPath)
             // Check if the file exists
             if (!fs.existsSync(filePath)) {
-                console.log(filePath)
                 return await interaction.editReply('The livery file could not be found.');
             }
 
             // Send the file as an attachment
             await interaction.editReply({
                 content: 'Livery generated successfully!',
-                files: [livery_path,spec_map_path], // Attach the file
+                files: [specPath,filePath], // Attach the file
             });
 
             fs.unlink(filePath, function (err) {
