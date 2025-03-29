@@ -97,6 +97,7 @@ module.exports = {
         await interaction.deferReply();
 
         // Get the options from the interaction
+        const uid = interaction.user.id
         const car = interaction.options.getString('car');
         const finish = interaction.options.getString('finish');
         const decal_finish = interaction.options.getString('decalfinish');
@@ -121,6 +122,7 @@ module.exports = {
             console.error(err);
             return await interaction.editReply('something else broke')
         }
+        console.log(uid, "requested",car)
         // Set up PythonShell options
         const options = {
             mode: 'text',
@@ -132,23 +134,20 @@ module.exports = {
         const pyshell = new PythonShell('./commands/livery/acc_script.py', options);
         let output = '';
         pyshell.stdout.on('data', async data => {
-            console.log(data)
-
             // Log the results from the Python script
             console.log('Python script output:', data);
 
             const fullFilePath = data.replace(/\\/g, "/");
             const filePath = test = "./commands/livery/temp" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
             const folderPath = filePath.substring(0, filePath.lastIndexOf("."));
-
-            console.log(filePath)
             // Check if the file exists
             if (!fs.existsSync(filePath)) {
-                console.log(filePath)
+                console.log('Livery file could not be found')
                 return await interaction.editReply('The livery file could not be found.');
             }
 
             // Send the file as an attachment
+            console.log('File found at:',filePath)
             await interaction.editReply({
                 content: 'Livery generated successfully!',
                 files: [filePath], // Attach the file

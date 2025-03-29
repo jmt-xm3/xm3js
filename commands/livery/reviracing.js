@@ -54,6 +54,7 @@ module.exports = {
         await interaction.deferReply();
 
         // Get the options from the interaction
+        const uid = interaction.user.id
         const car = interaction.options.getString('car');
         const base_colour = interaction.options.getString('basecolour');
         let dazzle1 = interaction.options.getString('dazzle1');
@@ -69,27 +70,35 @@ module.exports = {
 
         const pyshell = new PythonShell('./commands/livery/iracing_script.py', options);
         let output = '';
+        console.log(uid, "requested",car)
         pyshell.stdout.on('data', async data => {
-            console.log(data)
-
             // Log the results from the Python script
             console.log('Python script output:', data);
-            const data_split = ((((data.replace("(","").replace(")","")).replaceAll("'","")).replaceAll(" ","")).replace(/\\/g, "/")).split(",")
-            const specPath = data_split[0].replace(/\\/g, "/")
-            const filePath = data_split[1].replace(/\\/g, "/")
-            console.log(filePath,specPath)
+            const fullFilePath = data.replace(/\\/g, "/");
+            const filePath = test = "./commands/livery/temp/" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
+            const basePath = test = "./commands/livery/temp/" + "base" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
+            const specPath = test = "./commands/livery/iracing/" + car + "/spec.mip"
+            const folderPath = filePath.substring(0, filePath.lastIndexOf("."));
             // Check if the file exists
             if (!fs.existsSync(filePath)) {
+                console.log('Livery file could not be found at',filePath)
                 return await interaction.editReply('The livery file could not be found.');
             }
+            // Check if the file exists
 
             // Send the file as an attachment
+            console.log('File found at:',filePath)
             await interaction.editReply({
                 content: 'Livery generated successfully!',
                 files: [specPath,filePath], // Attach the file
             });
 
             fs.unlink(filePath, function (err) {
+                if (err) {
+                    console.log("Failed to delete file")
+                }
+            })
+            fs.unlink(basePath, function (err) {
                 if (err) {
                     console.log("Failed to delete file")
                 }

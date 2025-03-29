@@ -6,6 +6,7 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+/.vscode
 # config file
 node_modules
 .env
@@ -14,6 +15,7 @@ config.json
 /jsLibraryMappings.xml
 .idea
 commands/livery/temp/*
+commands/livery/__pycache__
 inspectionProfiles
 package-lock.json
 xm3js.iml
