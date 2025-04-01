@@ -5,23 +5,23 @@ const fs = require('fs'); // For handling file operations
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('reviracing')
-        .setDescription('Generates a REVSPORT International iRacing livery')
+        .setName('revhelmet')
+        .setDescription('Generates a REVSPORT International branded helmet for iRacing')
         .addStringOption(option =>
-            option.setName('car')
-                .setDescription('Car to search for')
+            option.setName('design')
+                .setDescription('Design')
                 .setRequired(true)
                 .setAutocomplete(true))
         .addStringOption(option =>
             option.setName('basecolour')
-                .setDescription('Base colour of car run /acchelp for all combos')
+                .setDescription('Base colour helmet')
                 .setRequired(true))
         .addStringOption(option =>
-            option.setName('dazzle1')
+            option.setName('colour1')
                 .setDescription('Hexadecimal value for the colour of the dazzle')
                 .setRequired(true))
         .addStringOption(option =>
-            option.setName('dazzle2')
+            option.setName('colour2')
                 .setDescription('Hexadecimal value for the colour of the dazzle')
                 .setRequired(true)),
 
@@ -29,15 +29,15 @@ module.exports = {
         const focusedValue = interaction.options.getFocused();
 
         try {
-            const iracing_cars = await gf.getFolders('./commands/livery/iracing'); // Await the Promise
-            console.log("Available iRacing cars:", iracing_cars);
+            const helmets = await gf.getFiles('./commands/livery/helmet'); // Await the Promise
+            console.log("Available iRacing cars:", helmets);
             console.log("Focused value:", focusedValue);
 
-            if (!iracing_cars || iracing_cars.length === 0) {
+            if (!helmets || helmets.length === 0) {
                 return await interaction.respond([]); // Return an empty array if no folders are found
             }
 
-            const choices = iracing_cars.sort();
+            const choices = helmets.sort();
             const filtered = choices
                 .filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
                 .slice(0, 25);
