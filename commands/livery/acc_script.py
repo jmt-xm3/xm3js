@@ -13,4 +13,3 @@ car.setInGameName(sys.argv[8])
 car.setFolderName(sys.argv[8])
 car.createLivery()
 print(car.zipPath)
-

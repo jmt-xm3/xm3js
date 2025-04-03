@@ -5,46 +5,78 @@ const fs = require('fs'); // For handling file operations
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('revihelmet')
-        .setDescription('Generates a REVSPORT International branded helmet')
+        .setName('revhelmet')
+        .setDescription('Generates a REVSPORT International branded helmet for iRacing')
         .addStringOption(option =>
-            option.setName('car')
-                .setDescription('Car to search for')
+            option.setName('design')
+                .setDescription('Design to search for')
                 .setRequired(true)
                 .setAutocomplete(true))
         .addStringOption(option =>
-            option.setName('basecolour')
-                .setDescription('Base colour of car run /acchelp for all combos')
+            option.setName('colour1')
+                .setDescription('Hexadecimal value')
                 .setRequired(true))
         .addStringOption(option =>
-            option.setName('dazzle1')
-                .setDescription('Hexadecimal value for the colour of the dazzle')
+            option.setName('colour2')
+                .setDescription('Hexadecimal value')
                 .setRequired(true))
         .addStringOption(option =>
-            option.setName('dazzle2')
-                .setDescription('Hexadecimal value for the colour of the dazzle')
-                .setRequired(true)),
+            option.setName('colour3')
+                .setDescription('Hexadecimal value')
+                .setRequired(true))
+        .addStringOption(option =>
+            option.setName('visorcolour')
+                .setDescription('Hexadecimal value')
+                .setRequired(true))
+        .addStringOption(option =>
+            option.setName('sponsor')
+                .setDescription('Sunstrip for helmet')
+                .setRequired(true)
+                .addChoices({ name: 'None', value: 'None' },{ name: 'DMZ Oils', value: 'dmz.png' },
+                    { name: 'GILF Oils', value: 'gilf.png' },
+                    { name: 'Mongkok', value: 'mongkok.png' },
+                    { name: 'Revsport Icon', value: 'revsport.png' },
+                    { name: 'REV Heavy Industries', value: 'rhi.png' },
+                    { name: 'revsport.racing/shop', value: 'shop.png' },
+                    { name: 'Smang Racing', value: 'smang.png' },
+                    { name: 'SOMAD', value: 'somad.png' },
+                    { name: 'Throbbing Energy', value: 'throb.png' }
+                ))
+        .addStringOption(option =>
+            option.setName('visorstrip')
+                .setDescription('Sunstrip for helmet')
+                .setRequired(true)
+                .addChoices({ name: 'Dark white text', value: 'darkwhitetext.png' },
+                    { name: 'Dazzle Classic', value: 'dazzleclassic.png' },
+                    { name: 'Dazzle dark', value: 'dazzledark.png' },
+                    { name: 'Dazzle light', value: 'dazzlelight.png' },
+                    { name: 'Hexagon pattern', value: 'hexpattern.png' },
+                    { name: 'Learn chinese', value: 'learnchinese.png' },
+                    { name: 'White black text', value: 'whiteblacktext.png' },
+                    { name: 'Visit Penn Island', value: 'penisland.png' },
+                    { name: 'Throbbing energy', value: 'throb.png' },
+                    { name: 'Revvving my wife tonite', value: 'wife.png' }
+                )),
+
+
 
     async autocomplete(interaction) {
         const focusedValue = interaction.options.getFocused();
-
         try {
-            const iracing_cars = await gf.getFolders('./commands/livery/iracing'); // Await the Promise
-            console.log("Available iRacing cars:", iracing_cars);
-            console.log("Focused value:", focusedValue);
+            const helmet_designs = await gf.getFiles('./commands/livery/helmet/designs'); // Await the Promise
 
-            if (!iracing_cars || iracing_cars.length === 0) {
+            if (!helmet_designs || helmet_designs.length === 0) {
                 return await interaction.respond([]); // Return an empty array if no folders are found
             }
 
-            const choices = iracing_cars.sort();
+            const choices = helmet_designs.sort();
             const filtered = choices
                 .filter(choice => choice.toLowerCase().includes(focusedValue.toLowerCase()))
                 .slice(0, 25);
 
             await interaction.respond(filtered.map(choice => ({ name: choice, value: choice })));
         } catch (error) {
-            console.error("Error fetching iRacing cars:", error);
+            console.error("Error fetching helmet designs:", error);
             await interaction.respond([]); // Return empty if an error occurs
         }
     },
@@ -55,56 +87,44 @@ module.exports = {
 
         // Get the options from the interaction
         const uid = interaction.user.id
-        const car = interaction.options.getString('car');
-        const base_colour = interaction.options.getString('basecolour');
-        let dazzle1 = interaction.options.getString('dazzle1');
-        let dazzle2 = interaction.options.getString('dazzle2');
+        const design = interaction.options.getString('design');
+        const colour1 = interaction.options.getString('colour1');
+        const colour2 = interaction.options.getString('colour2');
+        const colourv = interaction.options.getString('visorcolour');
+        const colour3 = interaction.options.getString('colour3');
+        const visor_strip = interaction.options.getString('visorstrip');
+        const sponsor = interaction.options.getString('sponsor');
 
         // Set up PythonShell options
         const options = {
             mode: 'text',
             //pythonPath: 'py',
             pythonOptions: ['-u'], // Unbuffered stdout
-            args: [car,base_colour,dazzle1,dazzle2], // Pass car and finish as arguments to the Python script
+            args: [design,colour1,colour2,colour3,colourv,visor_strip,uid,"0",sponsor], // Pass car and finish as arguments to the Python script
         };
 
-        const pyshell = new PythonShell('./commands/livery/iracing_script.py', options);
+        const pyshell = new PythonShell('./commands/livery/helmet_script.py', options);
         let output = '';
-        console.log(uid, "requested",car)
+        console.log(uid, "requested",design)
         pyshell.stdout.on('data', async data => {
             // Log the results from the Python script
             console.log('Python script output:', data);
             const fullFilePath = data.replace(/\\/g, "/");
             const filePath = test = "./commands/livery/temp/" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
-            const basePath = test = "./commands/livery/temp/" + "base" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
-            const specPath = test = "./commands/livery/iracing/" + car + "/spec.mip"
-            const folderPath = filePath.substring(0, filePath.lastIndexOf("."));
             // Check if the file exists
             if (!fs.existsSync(filePath)) {
                 console.log('Livery file could not be found at',filePath)
                 return await interaction.editReply('The livery file could not be found.');
             }
             // Check if the file exists
-            if (!fs.existsSync(specPath)){
-                console.log('No spec map')
-                await interaction.editReply({
-                    content: 'Livery generated successfully!',
-                    files: [filePath], // Attach the file
-                });
-            }
             else{
             console.log('File found at:',filePath)
             await interaction.editReply({
-                content: 'Livery generated successfully!',
-                files: [specPath,filePath], // Attach the file
-            })};
+                content: 'Helmet generated successfully!',
+                files: [filePath], // Attach the file
+            })}
 
             fs.unlink(filePath, function (err) {
-                if (err) {
-                    console.log("Failed to delete file")
-                }
-            })
-            fs.unlink(basePath, function (err) {
                 if (err) {
                     console.log("Failed to delete file")
                 }
@@ -120,8 +140,3 @@ module.exports = {
     },
 };
 
-function is6DigitHex(str) {
-    // Regular expression to match a 6-digit hexadecimal string
-    const hexRegex = /^[0-9A-Fa-f]{6}$/;
-    return hexRegex.test(str);
-}

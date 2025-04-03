@@ -13,8 +13,8 @@ async function getFolders(directory) {
 
 async function getFiles(directory) {
     try {
-        const items = await fs.readdir(directory, { withFileTypes: true }); // Await the async operation
-        return items.filter(item => item.isFile()).map(item => item.name);
+        const items = await fs.readdir(directory, { withFileTypes: false }); // Await the async operation
+        return  items.map(item => item.replaceAll(".png",""))
     } catch (error) {
         console.error('Error reading directory:', error);
         return [];
