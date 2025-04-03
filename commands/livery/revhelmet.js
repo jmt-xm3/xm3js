@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { PythonShell } = require('python-shell');
 const gf = require('./get_folders.js');
-const fs = require('fs'); // For handling file operations
+const fs = require('fs');
+const {sanitizeHexColor} = require("./get_folders"); // For handling file operations
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -46,15 +47,15 @@ module.exports = {
             option.setName('visorstrip')
                 .setDescription('Sunstrip for helmet')
                 .setRequired(true)
-                .addChoices({ name: 'Dark white text', value: 'darkwhitetext.png' },
+                .addChoices({ name: 'Dark Background / White text', value: 'darkwhitetext.png' },
                     { name: 'Dazzle Classic', value: 'dazzleclassic.png' },
                     { name: 'Dazzle dark', value: 'dazzledark.png' },
                     { name: 'Dazzle light', value: 'dazzlelight.png' },
                     { name: 'Hexagon pattern', value: 'hexpattern.png' },
                     { name: 'Learn chinese', value: 'learnchinese.png' },
-                    { name: 'White black text', value: 'whiteblacktext.png' },
-                    { name: 'Visit Penn Island', value: 'penisland.png' },
-                    { name: 'Throbbing energy', value: 'throb.png' },
+                    { name: 'White Background / Black text', value: 'whiteblacktext.png' },
+                    { name: 'Visit Pen Island', value: 'penisland.png' },
+                    { name: 'Throbbing Energy', value: 'throb.png' },
                     { name: 'Revvving my wife tonite', value: 'wife.png' }
                 )),
 
@@ -86,14 +87,22 @@ module.exports = {
         await interaction.deferReply();
 
         // Get the options from the interaction
-        const uid = interaction.user.id
+        const uid = interaction.user.id;
         const design = interaction.options.getString('design');
-        const colour1 = interaction.options.getString('colour1');
-        const colour2 = interaction.options.getString('colour2');
-        const colourv = interaction.options.getString('visorcolour');
-        const colour3 = interaction.options.getString('colour3');
-        const visor_strip = interaction.options.getString('visorstrip');
-        const sponsor = interaction.options.getString('sponsor');
+
+        // Declare variables outside try block
+        let colour1, colour2, colourv, colour3, visor_strip, sponsor;
+
+        try {
+            colour1 = sanitizeHexColor(interaction.options.getString('colour1'));
+            colour2 = sanitizeHexColor(interaction.options.getString('colour2'));
+            colourv = sanitizeHexColor(interaction.options.getString('visorcolour'));
+            colour3 = sanitizeHexColor(interaction.options.getString('colour3'));
+        } catch(error) {
+            return await interaction.editReply("Please enter six digit hexadecimal values, eg #FFAABB or #112233");
+        }
+        visor_strip = interaction.options.getString('visorstrip');
+        sponsor = interaction.options.getString('sponsor');
 
         // Set up PythonShell options
         const options = {
@@ -139,4 +148,5 @@ module.exports = {
         });
     },
 };
+
 

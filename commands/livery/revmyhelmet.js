@@ -7,7 +7,8 @@ const { promisify } = require('util');
 // Third-party libraries
 const { SlashCommandBuilder } = require('discord.js');
 const { PythonShell } = require('python-shell');
-const { fileTypeFromFile } = require('file-type'); // Updated import
+const { fileTypeFromFile } = require('file-type');
+const {sanitizeHexColor} = require("./get_folders"); // Updated import
 
 // Modern fetch implementation
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -131,15 +132,15 @@ module.exports = {
         option.setName('visorstrip')
             .setDescription('Sunstrip for helmet')
             .setRequired(true)
-            .addChoices({ name: 'Dark white text', value: 'darkwhitetext.png' },
+            .addChoices({ name: 'Dark Background / White text', value: 'darkwhitetext.png' },
                 { name: 'Dazzle Classic', value: 'dazzleclassic.png' },
                 { name: 'Dazzle dark', value: 'dazzledark.png' },
                 { name: 'Dazzle light', value: 'dazzlelight.png' },
                 { name: 'Hexagon pattern', value: 'hexpattern.png' },
                 { name: 'Learn chinese', value: 'learnchinese.png' },
-                { name: 'White black text', value: 'whiteblacktext.png' },
-                { name: 'Visit Penn Island', value: 'penisland.png' },
-                { name: 'Throbbing energy', value: 'throb.png' },
+                { name: 'White Background / Black text', value: 'whiteblacktext.png' },
+                { name: 'Visit Pen Island', value: 'penisland.png' },
+                { name: 'Throbbing Energy', value: 'throb.png' },
                 { name: 'Revvving my wife tonite', value: 'wife.png' }
             )),
 
@@ -147,8 +148,12 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply();
         const design = interaction.options.getAttachment('design');
-
-        // Validate attachment
+        let  colourv;
+        try {
+            colourv = sanitizeHexColor(interaction.options.getString('visorcolour'));
+        } catch(error) {
+            return await interaction.editReply("Please enter six digit hexadecimal values, eg #FFAABB or #112233");
+        }
         if (!design.contentType?.startsWith('image/')) {
             return interaction.editReply('Please upload a valid image file.');
         }
@@ -171,10 +176,10 @@ module.exports = {
             pythonOptions: ['-u'],
             args: [
                 finalPath,
-                0, // colour1
-                0, // colour2
-                0, // colour3
-                interaction.options.getString('visorcolour'),
+                0,
+                0,
+                0,
+                colourv,
                 interaction.options.getString('visorstrip'),
                 interaction.user.id,
                 "1",

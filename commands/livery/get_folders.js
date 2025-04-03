@@ -21,4 +21,17 @@ async function getFiles(directory) {
     }
 }
 
-module.exports = { getFolders,getFiles };
+function sanitizeHexColor(input) {
+    let hex = input.startsWith('#') ? input.slice(1) : input;
+    hex = hex.toLowerCase();
+    if (!/^[0-9a-f]+$/.test(hex)) {
+        throw new Error('Invalid hexadecimal characters - only 0-9 and a-f allowed');
+    }
+    if (hex.length !== 6) {
+        throw new Error('Hex color must be exactly 6 characters long (e.g., ff00aa)');
+    }
+
+    return hex;
+}
+
+module.exports = { getFolders,getFiles, sanitizeHexColor };

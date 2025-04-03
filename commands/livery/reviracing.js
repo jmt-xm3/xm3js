@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { PythonShell } = require('python-shell');
 const gf = require('./get_folders.js');
-const fs = require('fs'); // For handling file operations
+const fs = require('fs');
+const {sanitizeHexColor} = require("./get_folders"); // For handling file operations
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -56,9 +57,16 @@ module.exports = {
         // Get the options from the interaction
         const uid = interaction.user.id
         const car = interaction.options.getString('car');
-        const base_colour = interaction.options.getString('basecolour');
-        let dazzle1 = interaction.options.getString('dazzle1');
-        let dazzle2 = interaction.options.getString('dazzle2');
+        let dazzle1 , dazzle2 , base_colour
+
+        try{
+            dazzle1 = sanitizeHexColor(interaction.options.getString('dazzle1'));
+            dazzle2 = sanitizeHexColor(interaction.options.getString('dazzle2'));
+            base_colour = sanitizeHexColor(interaction.options.getString('basecolour'));
+        }catch(err){
+            console.error(err);
+            return await interaction.editReply("Please enter six digit hexadecimal values, eg #FFAABB or #112233")
+        }
 
         // Set up PythonShell options
         const options = {
@@ -97,7 +105,7 @@ module.exports = {
             await interaction.editReply({
                 content: 'Livery generated successfully!',
                 files: [specPath,filePath], // Attach the file
-            })};
+            })}
 
             fs.unlink(filePath, function (err) {
                 if (err) {
@@ -119,9 +127,3 @@ module.exports = {
         });
     },
 };
-
-function is6DigitHex(str) {
-    // Regular expression to match a 6-digit hexadecimal string
-    const hexRegex = /^[0-9A-Fa-f]{6}$/;
-    return hexRegex.test(str);
-}

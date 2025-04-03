@@ -57,7 +57,8 @@ else:
     replace_rgb(design_path, helmet_path, colour1, colour2, colour3)
 overlay_images(helmet_path, './commands/livery/helmet/decals.png', helmet_path)
 shutil.copyfile('./commands/livery/helmet/visor.png', visor_path)
-change_colour(visor_path, (0, 0, 255), replacement_color=colour_visor)
+modified_visor = change_colour(visor_path, (0, 0, 255), replacement_color=colour_visor)
+modified_visor.save(visor_path)
 
 if sponsors_on_helmet:
     overlay_images(helmet_path, sponsor_path, helmet_path)

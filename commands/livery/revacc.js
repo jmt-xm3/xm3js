@@ -3,6 +3,7 @@ const { PythonShell } = require('python-shell');
 const gf = require('./get_folders.js');
 const fs = require('fs'); // For handling file operations
 const math = require('mathjs');
+const {sanitizeHexColor} = require("./get_folders");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('revacc')
@@ -103,24 +104,19 @@ module.exports = {
         const decal_finish = interaction.options.getString('decalfinish');
         const sponsor_finish = interaction.options.getString('sponsorfinish');
         const base_colour = interaction.options.getString('basecolour');
+        if (valid_acc_colour(base_colour)){}
+        else{
+            return interaction.editReply("ACC colours are between 1-359 and 500-546")
+        }
         const name = interaction.options.getString('name');
-        let dazzle1 = interaction.options.getString('dazzle1');
-        let dazzle2 = interaction.options.getString('dazzle2');
+        let dazzle1 , dazzle2
 
         try{
-            let daz1hex = is6DigitHex(dazzle1);
-            let daz2hex = is6DigitHex(dazzle2);
-            if (daz1hex && daz2hex) {}
-            else{
-                return await interaction.editReply('Dazzle colours need to be valid 6 digit hexadecimal numbers.')
-            }
-            if (((base_colour > 0) && (base_colour <= 359) || ((base_colour >= 500) && (base_colour <= 532) ))){}
-            else {
-                return await interaction.editReply('ACC colours are between 1-359 and 500-532.')
-            }
+            dazzle1 = sanitizeHexColor(interaction.options.getString('dazzle1'));
+            dazzle2 = sanitizeHexColor(interaction.options.getString('dazzle2'));
         }catch(err){
             console.error(err);
-            return await interaction.editReply('something else broke')
+            return await interaction.editReply("Please enter six digit hexadecimal values, eg #FFAABB or #112233")
         }
         console.log(uid, "requested",car)
         // Set up PythonShell options
@@ -175,8 +171,15 @@ module.exports = {
     },
 };
 
-function is6DigitHex(str) {
-    // Regular expression to match a 6-digit hexadecimal string
-    const hexRegex = /^[0-9A-Fa-f]{6}$/;
-    return hexRegex.test(str);
+function valid_acc_colour(colour) {
+    let x
+    try{
+        x = parseint(colour)
+        if((x > 0 && x < 360) || x > 499 && x < 547 ){
+            return true;
+        }
+    }
+    catch(error) {
+        return false;
+    }
 }
