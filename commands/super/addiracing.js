@@ -18,6 +18,9 @@ module.exports = {
         )
         .addAttachmentOption(dazzle =>
             dazzle.setName('dazzle').setDescription('Dazzle file').setRequired(true)
+        )
+        .addAttachmentOption(dazzle =>
+            dazzle.setName('spec').setDescription('spec map file').setRequired(true)
         ),
 
     async execute(interaction) {
@@ -26,6 +29,7 @@ module.exports = {
         const carName = interaction.options.getString('name');
         const sponsorFile = interaction.options.getAttachment('sponsors');
         const dazzleFile = interaction.options.getAttachment('dazzle');
+        const specFile = interaction.options.getAttachment('spec');
         const dirPath = path.join(process.cwd(), 'commands', 'livery', 'iracing', carName);
 
         try {
@@ -36,12 +40,16 @@ module.exports = {
 
             console.log(`Downloading sponsor file: ${sponsorFile.proxyURL}`);
             console.log(`Downloading dazzle file: ${dazzleFile.proxyURL}`);
+            console.log(`Downloading spec file: ${specFile.proxyURL}`);
 
             // Download and save the sponsor file
             await downloadFile(sponsorFile.proxyURL, path.join(dirPath, 'sponsors.png'));
 
             // Download and save the dazzle file
             await downloadFile(dazzleFile.proxyURL, path.join(dirPath, 'dazzle.png'));
+
+            await downloadFile(specFile.proxyURL, path.join(dirPath, 'spec.mip'));
+
 
             console.log(`Added a new car: ${carName}`);
 
