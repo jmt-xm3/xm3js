@@ -20,7 +20,7 @@ module.exports = {
             dazzle.setName('dazzle').setDescription('Dazzle file').setRequired(true)
         )
         .addAttachmentOption(dazzle =>
-            dazzle.setName('spec').setDescription('spec map file').setRequired(false)
+            dazzle.setName('spec').setDescription('spec map file').setRequired(true)
         ),
 
     async execute(interaction) {
