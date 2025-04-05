@@ -332,7 +332,7 @@ class iRacingLivery:
     def __init__(self):
         self.name = str(random.randint(1, 10000000)) + '.png'
         self.path = os.path.join(currentDirectory, "temp", self.name)
-        self.base = os.path.join(currentDirectory, "temp", 'base' + self.name)
+        self.base = os.path.join(currentDirectory, "temp", 'base', self.name)
         self.base_colour = (255, 0, 0)
         self.dazzle1 = (0, 255, 0)
         self.dazzle2 = (0, 0, 255)

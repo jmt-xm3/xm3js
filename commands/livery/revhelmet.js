@@ -127,7 +127,9 @@ module.exports = {
 
             // Extract just the filename
             const fileName = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1);
+            const visorFileName = fileName + "visor";
             const filePath = `./commands/livery/temp/${fileName}`;
+            const visorFilePath = `./commands/livery/temp/${visorFileName}`;
             // Check if the file exists
             if (!fs.existsSync(filePath)) {
                 console.log('Livery file could not be found at',filePath)
@@ -145,6 +147,11 @@ module.exports = {
                 if (err) {
                     console.log("Failed to delete file")
                 }
+            })
+            fs.unlink(visorFilePath, function (err) {
+                    if (err) {
+                        console.log("Failed to delete file")
+                    }
             });
         });
 
