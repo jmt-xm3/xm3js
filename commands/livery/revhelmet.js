@@ -89,9 +89,15 @@ module.exports = {
         // Get the options from the interaction
         const uid = interaction.user.id;
         const design = interaction.options.getString('design');
+        const valid_designs = await gf.getFiles('./commands/livery/helmet/designs');
+        const visor_strip = interaction.options.getString('visorstrip');
+        const sponsor = interaction.options.getString('sponsor');
 
+        if (!valid_designs.includes(design)) {
+            return interaction.editReply('Invalid design selection. Please choose from the available options.');
+        }
         // Declare variables outside try block
-        let colour1, colour2, colourv, colour3, visor_strip, sponsor;
+        let colour1, colour2, colourv, colour3
 
         try {
             colour1 = sanitizeHexColor(interaction.options.getString('colour1'));
@@ -101,8 +107,7 @@ module.exports = {
         } catch(error) {
             return await interaction.editReply("Please enter six digit hexadecimal values, eg #FFAABB or #112233");
         }
-        visor_strip = interaction.options.getString('visorstrip');
-        sponsor = interaction.options.getString('sponsor');
+
 
         // Set up PythonShell options
         const options = {
@@ -113,13 +118,16 @@ module.exports = {
         };
 
         const pyshell = new PythonShell('./commands/livery/helmet_script.py', options);
-        let output = '';
         console.log(uid, "requested",design)
         pyshell.stdout.on('data', async data => {
             // Log the results from the Python script
             console.log('Python script output:', data);
-            const fullFilePath = data.replace(/\\/g, "/");
-            const filePath = test = "./commands/livery/temp/" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
+            const outputPath = data.toString().trim(); // Remove any whitespace/newlines
+            const normalizedPath = outputPath.replace(/\\/g, '/'); // Convert to forward slashes
+
+            // Extract just the filename
+            const fileName = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1);
+            const filePath = `./commands/livery/temp/${fileName}`;
             // Check if the file exists
             if (!fs.existsSync(filePath)) {
                 console.log('Livery file could not be found at',filePath)

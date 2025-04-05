@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const { PythonShell } = require('python-shell');
 const gf = require('./get_folders.js');
 const fs = require('fs'); // For handling file operations
-const math = require('mathjs');
+const path = require('path');
 const {sanitizeHexColor} = require("./get_folders");
 module.exports = {
     data: new SlashCommandBuilder()
@@ -74,8 +74,6 @@ module.exports = {
 
         try {
             const acc_cars = await gf.getFolders('./commands/livery/acc'); // Await the Promise
-            console.log("Available ACC cars:", acc_cars);
-            console.log("Focused value:", focusedValue);
 
             if (!acc_cars || acc_cars.length === 0) {
                 return await interaction.respond([]); // Return an empty array if no folders are found
@@ -104,6 +102,12 @@ module.exports = {
         const decal_finish = interaction.options.getString('decalfinish');
         const sponsor_finish = interaction.options.getString('sponsorfinish');
         const base_colour = interaction.options.getString('basecolour');
+        const validCars = await gf.getFolders('./commands/livery/acc');
+
+        if (!validCars.includes(car)) {
+            return interaction.editReply('Invalid car selection. Please choose from the available options.');
+        }
+
         if (valid_acc_colour(base_colour)){}
         else{
             return interaction.editReply("ACC colours are between 1-359 and 500-546")
@@ -128,44 +132,47 @@ module.exports = {
         };
 
         const pyshell = new PythonShell('./commands/livery/acc_script.py', options);
-        let output = '';
         pyshell.stdout.on('data', async data => {
-            // Log the results from the Python script
-            console.log('Python script output:', data);
+            // Clean and normalize the path
+            const outputPath = data.toString().trim();
+            const normalizedPath = outputPath.replace(/\\/g, '/');
 
-            const fullFilePath = data.replace(/\\/g, "/");
-            const filePath = test = "./commands/livery/temp" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
-            const folderPath = filePath.substring(0, filePath.lastIndexOf("."));
-            // Check if the file exists
-            if (!fs.existsSync(filePath)) {
-                console.log('Livery file could not be found')
+            // Get the zip filename and path
+            const zipFileName = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1);
+            const zipFilePath = path.join('./commands/livery/temp', zipFileName);
+
+            // Get the corresponding folder name (without .zip extension)
+            const folderName = zipFileName.replace('.zip', '');
+            const folderPath = path.join('./commands/livery/temp', folderName);
+
+            console.log('Zip file path:', zipFilePath);
+            console.log('Folder to delete:', folderPath);
+
+            if (!fs.existsSync(zipFilePath)) {
+                console.log('Livery zip file could not be found at', zipFilePath);
                 return await interaction.editReply('The livery file could not be found.');
             }
 
-            // Send the file as an attachment
-            console.log('File found at:',filePath)
+            // Send the zip file first
             await interaction.editReply({
                 content: 'Livery generated successfully!',
-                files: [filePath], // Attach the file
+                files: [zipFilePath],
             });
 
-            fs.unlink(filePath, function (err) {
-                if (err) {
-                    console.log("Failed to delete file")
+            // Clean up both the zip and the folder
+            try {
+                // Delete the zip file
+                await fs.promises.unlink(zipFilePath);
+                console.log('Deleted zip file:', zipFilePath);
+
+                // Delete the folder if it exists
+                if (fs.existsSync(folderPath)) {
+                    await fs.promises.rm(folderPath, { recursive: true, force: true });
+                    console.log('Deleted folder:', folderPath);
                 }
-            });
-
-            fs.rmdir(folderPath, { recursive: true, force: true }, function (err) {
-                if (err) {
-                    console.log("Failed to delete folder")
-                }
-            });
-        });
-
-        pyshell.end(async err => {
-            if (err) {
-                console.error('Error running Python script:', err);
-                return await interaction.editReply('An error occurred while generating the livery.');
+            } catch (err) {
+                console.error('Cleanup error:', err);
+                // Don't fail the command if cleanup fails
             }
         });
     },
@@ -174,10 +181,8 @@ module.exports = {
 function valid_acc_colour(colour) {
     let x
     try{
-        x = parseint(colour)
-        if((x > 0 && x < 360) || x > 499 && x < 547 ){
-            return true;
-        }
+        x = parseInt(colour)
+        return (x > 0 && x < 360) || x > 499 && x < 547;
     }
     catch(error) {
         return false;

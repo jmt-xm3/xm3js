@@ -31,8 +31,6 @@ module.exports = {
 
         try {
             const iracing_cars = await gf.getFolders('./commands/livery/iracing'); // Await the Promise
-            console.log("Available iRacing cars:", iracing_cars);
-            console.log("Focused value:", focusedValue);
 
             if (!iracing_cars || iracing_cars.length === 0) {
                 return await interaction.respond([]); // Return an empty array if no folders are found
@@ -59,6 +57,12 @@ module.exports = {
         const car = interaction.options.getString('car');
         let dazzle1 , dazzle2 , base_colour
 
+        const validCars = await gf.getFolders('./commands/livery/iracing');
+
+        if (!validCars.includes(car)) {
+            return interaction.editReply('Invalid car selection. Please choose from the available options.');
+        }
+
         try{
             dazzle1 = sanitizeHexColor(interaction.options.getString('dazzle1'));
             dazzle2 = sanitizeHexColor(interaction.options.getString('dazzle2'));
@@ -77,16 +81,18 @@ module.exports = {
         };
 
         const pyshell = new PythonShell('./commands/livery/iracing_script.py', options);
-        let output = '';
         console.log(uid, "requested",car)
         pyshell.stdout.on('data', async data => {
             // Log the results from the Python script
             console.log('Python script output:', data);
-            const fullFilePath = data.replace(/\\/g, "/");
-            const filePath = test = "./commands/livery/temp/" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
-            const basePath = test = "./commands/livery/temp/" + "base" + fullFilePath.substring(fullFilePath.lastIndexOf("/"), fullFilePath.length - 2);
+            const outputPath = data.toString().trim(); // Remove any whitespace/newlines
+            const normalizedPath = outputPath.replace(/\\/g, '/'); // Convert to forward slashes
+
+            // Extract just the filename
+            const fileName = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1);
+            const filePath = `./commands/livery/temp/${fileName}`;
+            const basePath = `./commands/livery/temp/base${fileName}`;
             const specPath = test = "./commands/livery/iracing/" + car + "/spec.mip"
-            const folderPath = filePath.substring(0, filePath.lastIndexOf("."));
             // Check if the file exists
             if (!fs.existsSync(filePath)) {
                 console.log('Livery file could not be found at',filePath)
