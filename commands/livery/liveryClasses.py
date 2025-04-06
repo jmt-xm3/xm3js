@@ -21,7 +21,7 @@ materials = [{'key': 'Glossy', 'value': 0}, {'key': 'Matte', 'value': 1}, {'key'
     'key': 'Satin Metallic', 'value': 3}, {'key': 'Metallic', 'value': 4}, {'key': 'Chrome', 'value': 5},
              {'key': 'Clear Chrome', 'value': 6}]
 
-currentDirectory = os.getcwd() + '\commands\livery'
+currentDirectory = os.path.join(os.getcwd(), 'commands', 'livery')
 car_models = [
     {"id": 13, "name": "Reiter Engineering R-EX GT3"},
     {"id": 34, "name": "Porsche 992 GT3 R"},
@@ -332,7 +332,7 @@ class iRacingLivery:
     def __init__(self):
         self.name = str(random.randint(1, 10000000)) + '.png'
         self.path = os.path.join(currentDirectory, "temp", self.name)
-        self.base = os.path.join(currentDirectory, "temp", 'base', self.name)
+        self.base = os.path.join(currentDirectory, "temp", ('base' + self.name))
         self.base_colour = (255, 0, 0)
         self.dazzle1 = (0, 255, 0)
         self.dazzle2 = (0, 0, 255)
