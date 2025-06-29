@@ -2,7 +2,7 @@ const { Events, ActivityType, PresenceUpdateStatus } = require('discord.js');
 const fs = require('fs').promises;
 const path = require('path');
 
-const races = ['iRacing F4','IMSA Fixed','ACC','NASCAR C Fixed','NASCAR B Fixed','Mongolian F4','Bolivian F7','Chinese F4','NASCAR A Fixed']
+const races = ['iRacing F4','IMSA Fixed','GT3s at Monza','NASCAR C Fixed','NASCAR B Fixed','Mongolian F4','Bolivian F7','Chinese F4','NASCAR A Fixed']
 module.exports = {
 	name: Events.ClientReady,
 	once: true,

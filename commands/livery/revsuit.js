@@ -98,52 +98,33 @@ async function downloadImageWithSizeCheck(url, outputDir) {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('revmyhelmet')
-    .setDescription('Rev Up Your own helmet or texture!')
+        .setName('revsuit')
+    .setDescription('New threads for your driver and pitcrew')
     .addAttachmentOption(sponsor =>
-        sponsor.setName('design').setDescription('Image file').setRequired(true)
+        sponsor.setName('flag').setDescription('Image file').setRequired(false)
     )
     .addStringOption(option =>
-        option.setName('visorcolour')
+        option.setName('colour1')
             .setDescription('Hexadecimal value')
             .setRequired(true))
     .addStringOption(option =>
-        option.setName('sponsor')
-            .setDescription('Sunstrip for helmet')
-            .setRequired(true)
-            .addChoices({ name: 'None', value: 'None' },{ name: 'DMZ Oils', value: 'dmz.png' },
-                { name: 'GILF Oils', value: 'gilf.png' },
-                { name: 'Mongkok', value: 'mongkok.png' },
-                { name: 'Revsport Icon', value: 'revsport.png' },
-                { name: 'REV Heavy Industries', value: 'rhi.png' },
-                { name: 'revsport.racing/shop', value: 'shop.png' },
-                { name: 'Smang Racing', value: 'smang.png' },
-                { name: 'SOMAD', value: 'somad.png' },
-                { name: 'Throbbing Energy', value: 'throb.png' }
-            ))
+        option.setName('colour2')
+            .setDescription('Hexadecimal value')
+            .setRequired(true))
     .addStringOption(option =>
-        option.setName('visorstrip')
-            .setDescription('Sunstrip for helmet')
-            .setRequired(true)
-            .addChoices({ name: 'Dark Background / White text', value: 'darkwhitetext.png' },
-                { name: 'Dazzle Classic', value: 'dazzleclassic.png' },
-                { name: 'Dazzle dark', value: 'dazzledark.png' },
-                { name: 'Dazzle light', value: 'dazzlelight.png' },
-                { name: 'Hexagon pattern', value: 'hexpattern.png' },
-                { name: 'Learn chinese', value: 'learnchinese.png' },
-                { name: 'White Background / Black text', value: 'whiteblacktext.png' },
-                { name: 'Visit Pen Island', value: 'penisland.png' },
-                { name: 'Throbbing Energy', value: 'throb.png' },
-                { name: 'Revvving my wife tonite', value: 'wife.png' }
-            )),
+        option.setName('colour3')
+            .setDescription('Hexadecimal value')
+            .setRequired(true)),
 
 
     async execute(interaction) {
         await interaction.deferReply();
         const design = interaction.options.getAttachment('design');
-        let  colourv;
+        let  colour1;
         try {
-            colourv = sanitizeHexColor(interaction.options.getString('visorcolour'));
+            colour1 = sanitizeHexColor(interaction.options.getString('colour1'));
+            colour2 = sanitizeHexColor(interaction.options.getString('colour2'));
+            colour3 = sanitizeHexColor(interaction.options.getString('colour3'));
         } catch(error) {
             return await interaction.editReply("Please enter six digit hexadecimal values, eg #FFAABB or #112233");
         }
